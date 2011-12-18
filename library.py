@@ -1,11 +1,13 @@
 #!/bin/env python
+# -*- coding: utf-8 -*-
 
 
 import os
 import sys
 import sqlite3
 
-LibraryPath = '/home/liuhui/Code'
+#LibraryPath = '/home/liuhui/Code'
+LibraryPath = '/misc/Book/Book/Linux开发'
 DataBase = '/tmp/library.dat'
 
 def CheckFileType(filename):
