@@ -181,7 +181,8 @@ def updateCatalog():
                     booklist.append(tmp[0])
             bList = str(booklist).replace("'", '"')
             print "blist", bList
-            insert = "INSERT INTO catalog VALUES ('%s', '%s', %d, '%s')" % (key, item[0], n, bList)
+            insert = "INSERT INTO catalog VALUES ('%s', '%s', %d, '%s')" % (key, item[1], n, bList)
+            print insert
             hasinsert = item[1]
             c.execute(insert)
     conn.commit()
