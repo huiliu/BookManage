@@ -164,17 +164,21 @@ def updateCatalog():
     for key, value in catalog.items():
         hasinsert = ''
         print "Key, Value:", key, value
-        for i, item in enumerate(value):
+        # I want to use the iternate find the same tag (may be press, lauguage, and so on)
+        #for i, item in enumerate(value):
+        for item in value:
+        # item is a tuple (bookname, columneValue)
             if item[1] == hasinsert:
                 print 'hello'
                 continue
             n = 0
             booklist = []
-            for j, tmp in enumerate(value):
+            #for j, tmp in enumerate(value):
+            for tmp in value:
                 if item[1] == tmp[1]:
                     #print item[0], item[1]
                     n += 1
-                    booklist.append(item[0])
+                    booklist.append(tmp[0])
             bList = str(booklist).replace("'", '"')
             print "blist", bList
             insert = "INSERT INTO catalog VALUES ('%s', '%s', %d, '%s')" % (key, item[0], n, bList)
