@@ -6,8 +6,8 @@ import os
 import sys
 import sqlite3
 
-#LibraryPath = '/home/liuhui/Code'
-LibraryPath = '/misc/Book/Book/Linux开发'
+LibraryPath = '/home/liuhui/Code'
+#LibraryPath = '/misc/Book/Book/Linux开发'
 DataBase = '/tmp/library.dat'
 
 def CheckFileType(filename):
@@ -23,6 +23,16 @@ def CheckFileType(filename):
         return ('.'.join(filetype[0:-1]), filetype[-1])
     except ValueError:
         return False
+
+def guessTag(string):
+    tmp = string.replace(LibraryPath, '').split('\\')
+    if len(tmp) == 1:
+        return tmp[0]
+    tag = ''
+    for item in tmp:
+        tag = tag + ' %s' % item
+    print tag
+    return tag
 
 def SqlInsert(filename, pathname):
     """ Generate insert SQL sentence, the special characater need to be escape.
@@ -43,7 +53,7 @@ def SqlInsert(filename, pathname):
     else:
         fname, fformat = filetype
 
-    tag = catalog = 'python'
+    tag = catalog = guessTag(pathname)
     record = "INSERT INTO library VALUES('%s', '%s', '%s', '%s', '%s', \
                 '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)" % \
                 (fname, "", "", "", "", fformat, "", "", tag, catalog, \
