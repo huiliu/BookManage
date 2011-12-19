@@ -25,7 +25,12 @@ def CheckFileType(filename):
         return False
 
 def guessTag(string):
-    tmp = string.replace(LibraryPath, '').split('\\')
+    """Guess the initial tag and catalog by the directory name, may be has 
+        other more better method
+    """
+    # cut the first characater '/'
+    tmp = string.replace(LibraryPath, '')[1:].split('/')
+    #print(tmp)
     if len(tmp) == 1:
         return tmp[0]
     tag = ''
@@ -177,13 +182,13 @@ def updateCatalog():
     # value     [(bookname, keyvalue), (bookname, keyvalue)......]
     for key, value in catalog.items():
         hasinsert = ''
-        print "Key, Value:", key, value
+        #print "Key, Value:", key, value
         # I want to use the iternate find the same tag (may be press, lauguage, and so on)
         #for i, item in enumerate(value):
         for item in value:
         # item is a tuple (bookname, columneValue)
             if item[1] == hasinsert:
-                print 'hello'
+                #print 'hello'
                 continue
             n = 0
             booklist = []
@@ -194,9 +199,9 @@ def updateCatalog():
                     n += 1
                     booklist.append(tmp[0])
             bList = str(booklist).replace("'", '"')
-            print "blist", bList
+            #print "blist", bList
             insert = "INSERT INTO catalog VALUES ('%s', '%s', %d, '%s')" % (key, item[1], n, bList)
-            print insert
+            #print insert
             hasinsert = item[1]
             c.execute(insert)
     conn.commit()
