@@ -34,17 +34,18 @@ def guessTag(string):
     print tag
     return tag
 
-def SqlInsert(filename, pathname):
+def SqlInsert(fileInfo, cur):
     """ Generate insert SQL sentence, the special characater need to be escape.
         If the filename or pathname has some characater need to be escape
     """
     fname = ''
     fformat = ''
-    #escape = ["'", '"', '\\' '%', '_']
+    filename, pathname = fileInfo
+
     # use sqlite3 test sql, just ' need to be escape "''"
     filename = filename.replace("'", "''")
-    #filename = filename.replace("_", "\_")
 
+    tag = catalog = guessTag(pathname)
     # May be some files hasn't suffix type
     filetype = CheckFileType(filename)
     if not filetype:
@@ -53,32 +54,29 @@ def SqlInsert(filename, pathname):
     else:
         fname, fformat = filetype
 
-    tag = catalog = guessTag(pathname)
     record = "INSERT INTO library VALUES('%s', '%s', '%s', '%s', '%s', \
                 '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d)" % \
                 (fname, "", "", "", "", fformat, "", "", tag, catalog, \
                 pathname, "", 1, 5)
-#   print record
-    return record
+
+    cur.execute(record)
+    # it may be not neccensary
+    return True
 
 def GetBook(path):
     """List all book in the Library
         path    the absolute path. such as /home/liuhui/Library
     """
-    sqlinsert = []
+    booklist = []
     for dirpath, dirname, filenames in os.walk(path):
         if not len(filenames):
             continue
         else:
             for filename in filenames:
-                #print filename, dirpath
-                #print SqlInsert(filename, dirpath)
-                sqlinsert.append(SqlInsert(filename, dirpath))
-    return sqlinsert
-
-def SqlOperate(cur, sql):
-    for item in sql:
-        cur.execute(item)
+                # if there call the function SqlInsert to generate insert
+                # sentence may be save more time
+                booklist.append((filename, dirpath))
+    return booklist
 
 def CreateLibrary():
     """Create Library DataBase and Insert the book.
@@ -113,7 +111,10 @@ def CreateLibrary():
         c.execute(CreateCatalog)
     except sqlite3.OperationalError:
         print "The table has exist!"
-    SqlOperate(c, BookList)
+
+    for item in BookList:
+        SqlInsert(item, c)
+
     conn.commit()
     conn.close()
 
