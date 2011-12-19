@@ -31,12 +31,14 @@ def guessTag(string):
     # cut the first characater '/'
     tmp = string.replace(LibraryPath, '')[1:].split('/')
     #print(tmp)
+    # the tag string last must be , and later UpdateCatalog function will use
+    # this feature.
     if len(tmp) == 1:
-        return tmp[0]
+        return tmp[0]+ ","
     tag = ''
     for item in tmp:
-        tag = tag + ' %s' % item
-    print tag
+        tag = item + ',' + tag 
+    #print tag
     return tag
 
 def SqlInsert(fileInfo, cur):
@@ -165,6 +167,15 @@ def FindBook(keyword, flag):
     conn.close()
     return result
     
+def reduceList(relist):
+    """reduce the list
+    """
+    tmp = []
+    for item in relist:
+        if tmp.count(item) < 1:
+            tmp.append(item)
+    return tmp
+
 def updateCatalog():
     """Catalog the book by the prespecial classification, such as lauguage 
         type, publish date, tag, author and so on.
@@ -174,36 +185,19 @@ def updateCatalog():
     conn = sqlite3.connect(DataBase)
     c = conn.cursor()
     for item in columeName:
-        sql = "SELECT bookname, %s FROM library WHERE %s != ''" % (item, item)
-        catalog[item] = c.execute(sql).fetchall()
-        #print item, catalog[item]
+        sql = "SELECT %s FROM library WHERE %s != ''" % (item, item)
+        # return value ---> [(bookname, keyvalue), (bookname, keyvalue)......]
+        catalog = c.execute(sql).fetchall()
+        strConn = ''
+        for tmp in catalog:
+            # some bug exsit, some string cann't strip clean
+            strConn += tmp[0].strip()
+        sqlitem = reduceList(strConn[:-1].split(','))
+        sqlitem = str(sqlitem).replace("'", '"')
 
-    # key       The columne name of the library table
-    # value     [(bookname, keyvalue), (bookname, keyvalue)......]
-    for key, value in catalog.items():
-        hasinsert = ''
-        #print "Key, Value:", key, value
-        # I want to use the iternate find the same tag (may be press, lauguage, and so on)
-        #for i, item in enumerate(value):
-        for item in value:
-        # item is a tuple (bookname, columneValue)
-            if item[1] == hasinsert:
-                #print 'hello'
-                continue
-            n = 0
-            booklist = []
-            #for j, tmp in enumerate(value):
-            for tmp in value:
-                if item[1] == tmp[1]:
-                    #print item[0], item[1]
-                    n += 1
-                    booklist.append(tmp[0])
-            bList = str(booklist).replace("'", '"')
-            #print "blist", bList
-            insert = "INSERT INTO catalog VALUES ('%s', '%s', %d, '%s')" % (key, item[1], n, bList)
-            #print insert
-            hasinsert = item[1]
-            c.execute(insert)
+        sql = "INSERT INTO catalog VALUES ('%s', '%s', 1, '')" % (item, sqlitem)
+        c.execute(sql)
+            
     conn.commit()
     conn.close()
     
