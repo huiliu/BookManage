@@ -31,8 +31,9 @@ def SqlInsert(filename, pathname):
     fname = ''
     fformat = ''
     #escape = ["'", '"', '\\' '%', '_']
-    filename = filename.replace("'", "\'")
-    filename = filename.replace("_", "\_")
+    # use sqlite3 test sql, just ' need to be escape "''"
+    filename = filename.replace("'", "''")
+    #filename = filename.replace("_", "\_")
 
     # May be some files hasn't suffix type
     filetype = CheckFileType(filename)
