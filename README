@@ -1,0 +1,2 @@
+compute the file's md5sum, but the library md5 is so slow, 
+use bash or multiprocessing.
