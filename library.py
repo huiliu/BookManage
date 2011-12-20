@@ -181,22 +181,23 @@ def updateCatalog():
         type, publish date, tag, author and so on.
     """
     columeName = ['tag', 'catalog', 'lauguage', 'format', 'press']
-    catalog = {}
+    catalog = []
     conn = sqlite3.connect(DataBase)
     c = conn.cursor()
     for item in columeName:
         sql = "SELECT %s FROM library WHERE %s != ''" % (item, item)
         # return value ---> [(bookname, keyvalue), (bookname, keyvalue)......]
-        catalog = c.execute(sql).fetchall()
+        tmpCatalog = c.execute(sql).fetchall()
         strConn = ''
-        for tmp in catalog:
-            # some bug exsit, some string cann't strip clean
+        for tmp in tmpCatalog:
+            # FIXED. some bug exsit, some string cann't strip clean
             strConn += tmp[0].strip()
-        sqlitem = reduceList(strConn[:-1].split(','))
-        sqlitem = str(sqlitem).replace("'", '"')
+        if strConn != '':
+            catalog += reduceList(strConn[:-1].split(','))
 
-        sql = "INSERT INTO catalog VALUES ('%s', '%s', 1, '')" % (item, sqlitem)
-        c.execute(sql)
+    sqlitem = ','.join(catalog).replace("'", '"')
+    sql = "INSERT INTO catalog VALUES ('%s', '%s', 1, '')" % (item, sqlitem)
+    c.execute(sql)
             
     conn.commit()
     conn.close()
